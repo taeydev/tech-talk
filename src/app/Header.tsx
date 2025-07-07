@@ -26,7 +26,7 @@ const Header: React.FC = () => {
         )}
         {open && !isWritePage && (
           <div className="absolute right-0 z-50 mt-2 flex w-44 flex-col rounded border border-[var(--color-border)] bg-white text-sm font-medium shadow-lg">
-            <Link href="/write" passHref>
+            <Link href="/posts/write" passHref>
               <button
                 className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left hover:bg-gray-100"
                 onClick={(e) => {
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
                 URL로 간단 작성
               </button>
             </Link>
-            <Link href="/write" passHref>
+            <Link href="/posts/write" passHref>
               <button
                 className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left hover:bg-gray-100"
                 onClick={() => setOpen(false)}
