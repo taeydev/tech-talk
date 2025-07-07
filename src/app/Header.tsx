@@ -14,7 +14,7 @@ const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [urlModalOpen, setUrlModalOpen] = useState(false);
   const pathname = usePathname();
-  const isWritePage = pathname.startsWith('/write');
+  const isWritePage = pathname.startsWith('/posts/write');
   const [url, setUrl] = useState('');
 
   return (

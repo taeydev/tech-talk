@@ -1,24 +1,38 @@
 import ArrowLeftIcon from '@icons/ArrowLeftIcon';
 import Button from '@components/Button';
 import Link from 'next/link';
+import CalendarIcon from '@icons/CalendarIcon';
+import EyeIcon from '@icons/EyeIcon';
+import CommentSection from '../components/CommentSection';
 
 const mockPosts = [
   {
-    id: '1',
-    title: '첫 번째 게시글',
-    content: '이것은 첫 번째 게시글의 내용입니다.',
+    id: 1,
+    thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
+    title:
+      '기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다.',
+    content:
+      '이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다.',
+    createdAt: '2025-07-01',
+    views: 1234,
     tags: ['React', 'Next.js'],
   },
   {
-    id: '2',
-    title: '두 번째 게시글',
-    content: '두 번째 게시글의 내용입니다.',
+    id: 2,
+    thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
+    title: '두 번째 게시글 제목',
+    content: '짧은 내용',
+    createdAt: '2025-06-22',
+    views: 567,
     tags: ['TypeScript'],
   },
   {
-    id: '3',
-    title: '세 번째 게시글',
+    id: 3,
+    thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
+    title: '세 번째 게시글 제목',
     content: '세 번째 게시글의 내용입니다.',
+    createdAt: '2025-05-03',
+    views: 890,
     tags: ['JavaScript', 'Web'],
   },
 ];
@@ -27,7 +41,7 @@ const mockPosts = [
  * 게시글 상세 페이지
  */
 const PostDetailPage = ({ params }: { params: { id: string } }) => {
-  const post = mockPosts.find((p) => p.id === params.id);
+  const post = mockPosts.find((p) => String(p.id) === params.id);
 
   if (!post) {
     return (
@@ -59,25 +73,45 @@ const PostDetailPage = ({ params }: { params: { id: string } }) => {
           </h2>
         </div>
         <div className="mt-8 flex flex-col">
-          <div className="flex flex-col gap-6">
-            <div className="my-2 text-lg font-bold text-[var(--color-black)]">
+          <div className="flex flex-col">
+            {post.thumbnailUrl && (
+              <img
+                src={post.thumbnailUrl}
+                alt="thumbnail"
+                className="mb-4 h-48 w-full rounded border border-[var(--color-border)] bg-[var(--color-border)] object-cover"
+              />
+            )}
+            <div className="my-2 mt-6 text-lg font-bold text-[var(--color-black)]">
               {post.title}
             </div>
-            <div className="min-h-[180px] whitespace-pre-line text-[var(--color-black)]">
+            <div className="mb-6 flex flex-col gap-3 border-b-1 border-[var(--color-border)] py-3 text-xs text-[var(--color-subtext)]">
+              <div className="flex gap-4">
+                <span className="flex items-center gap-1">
+                  <CalendarIcon className="h-4 w-4 text-[var(--color-icon)]" />
+                  {post.createdAt}
+                </span>
+                <span className="flex items-center gap-1">
+                  <EyeIcon className="h-4 w-4 text-[var(--color-icon)]" />
+                  {post.views.toLocaleString()}
+                </span>
+              </div>
+              {post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mb-6 min-h-[180px] text-base whitespace-pre-line text-[var(--color-black)]">
               {post.content}
             </div>
-            {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            <CommentSection />
           </div>
         </div>
       </div>

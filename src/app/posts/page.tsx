@@ -1,4 +1,4 @@
-import PostListItem from '@components/PostListItem';
+import PostListItem from '@posts/components/PostListItem';
 import { Post } from '@/app/models/post';
 
 /**

@@ -22,7 +22,8 @@
       "@/*": ["./src/*"],
       "@components/*": ["src/app/components/*"],
       "@icons/*": ["src/app/components/icons/*"],
-      "@models/*": ["src/app/models/*"]
+      "@models/*": ["src/app/models/*"],
+      "@posts/*": ["src/app/posts/*"]
     },
     "baseUrl": "."
   },
