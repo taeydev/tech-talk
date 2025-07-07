@@ -11,6 +11,7 @@
   --color-subtext: #8f8f8f;
   --color-button: #0a80ed;
   --color-bg: #f9f9f9;
+  --color-error: #ef4444;
 }
 
 @theme inline {

@@ -22,7 +22,7 @@ const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
           <div className="mb-1 line-clamp-2 text-sm leading-snug break-words text-[var(--color-subtext)]">
             {post.content}
           </div>
-          <div className="mt-1 flex items-center gap-4 text-xs text-[var(--color-subtext)]">
+          <div className="mt-1 mb-1 flex items-center gap-4 text-xs text-[var(--color-subtext)]">
             <span className="flex items-center gap-1">
               <CalendarIcon className="h-4 w-4 text-[var(--color-icon)]" />
               {post.createdAt}
@@ -31,6 +31,20 @@ const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
               <EyeIcon className="h-4 w-4 text-[var(--color-icon)]" />
               {post.views.toLocaleString()}
             </span>
+          </div>
+          <div className="mt-1">
+            {post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-800"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div
