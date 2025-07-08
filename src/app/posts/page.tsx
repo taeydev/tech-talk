@@ -1,52 +1,12 @@
 import PostListItem from '@posts/components/PostListItem';
 import PageHeader from '@posts/components/PageHeader';
-import { Post } from '@models/post';
+import { getPosts } from '@api/posts';
 
 /**
  * 게시글 목록 페이지
  */
-const PostListPage = () => {
-  // 예시 데이터
-  const posts: Post[] = [
-    {
-      id: 1,
-      thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-      title:
-        '기술 공유 예시 게시글 제목입니다. 한 줄까지만 보여집니다. 길어질 경우 그 이후는 ... 으로 생략됩니다.',
-      content:
-        '이곳은 게시글의 내용이 들어가는 부분입니다. 내용이 길어질 경우 두 줄까지만 보여지고, 그 이후는 ... 으로 생략됩니다. 기술적인 내용, 코드, 설명 등 자유롭게 작성할 수 있습니다.',
-      createdAt: '2025-07-01',
-      views: 1234,
-      tags: ['React', 'Next.js'],
-    },
-    {
-      id: 2,
-      thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-      title: '두 번째 게시글 제목',
-      content: '짧은 내용',
-      createdAt: '2025-06-22',
-      views: 567,
-      tags: ['TypeScript'],
-    },
-    {
-      id: 3,
-      thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-      title: '세 번째 게시글 제목',
-      content: '세 번째 게시글의 내용입니다.',
-      createdAt: '2025-05-03',
-      views: 890,
-      tags: [],
-    },
-    {
-      id: 4,
-      thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-      title: '네 번째 게시글 제목',
-      content: '네 번째 게시글의 내용입니다.',
-      createdAt: '2024-11-04',
-      views: 321,
-      tags: ['JavaScript', 'Web'],
-    },
-  ];
+const PostListPage = async () => {
+  const posts = await getPosts();
 
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center bg-[var(--color-bg)] py-10">

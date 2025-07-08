@@ -5,42 +5,13 @@ import Button from '@components/Button';
 import Link from 'next/link';
 import CalendarIcon from '@icons/CalendarIcon';
 import EyeIcon from '@icons/EyeIcon';
-import { Post } from '@models/post';
+import { getPostById } from '@api/posts';
 
-const mockPosts: Post[] = [
-  {
-    id: 1,
-    thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-    title:
-      '기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다. 기술 공유 예시 게시글 제목입니다.',
-    content:
-      '이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다. 이곳은 게시글의 내용이 들어가는 부분입니다.',
-    createdAt: '2025-07-01',
-    views: 1234,
-    tags: ['React', 'Next.js'],
-  },
-  {
-    id: 2,
-    thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-    title: '두 번째 게시글 제목',
-    content: '짧은 내용',
-    createdAt: '2025-06-22',
-    views: 567,
-    tags: ['TypeScript'],
-  },
-  {
-    id: 3,
-    thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
-    title: '세 번째 게시글 제목',
-    content: '세 번째 게시글의 내용입니다.',
-    createdAt: '2025-05-03',
-    views: 890,
-    tags: ['JavaScript', 'Web'],
-  },
-];
-
-const PostDetailPage = ({ params }: { params: { id: string } }) => {
-  const post = mockPosts.find((p) => String(p.id) === params.id);
+/**
+ * 게시글 상세 페이지
+ */
+const PostDetailPage = async ({ params }: { params: { id: string } }) => {
+  const post = await getPostById(params.id);
 
   if (!post) {
     return (
