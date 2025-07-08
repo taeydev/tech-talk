@@ -1,5 +1,6 @@
 import PostListItem from '@posts/components/PostListItem';
-import { Post } from '@/app/models/post';
+import PageHeader from '@posts/components/PageHeader';
+import { Post } from '@models/post';
 
 /**
  * 게시글 목록 페이지
@@ -50,11 +51,7 @@ const PostListPage = () => {
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center bg-[var(--color-bg)] py-10">
       <div className="mx-auto w-full max-w-4xl px-4 md:px-12">
-        <div className="mb-2 w-full">
-          <h2 className="text-2xl font-bold text-[var(--color-black)]">
-            Tech Posts
-          </h2>
-        </div>
+        <PageHeader title="Tech Posts" />
         <div className="mb-4 w-full text-right">
           <span className="text-sm text-[var(--color-subtext)]">
             Total: {posts.length}

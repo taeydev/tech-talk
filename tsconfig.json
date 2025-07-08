@@ -20,10 +20,11 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@components/*": ["src/app/components/*"],
-      "@icons/*": ["src/app/components/icons/*"],
-      "@models/*": ["src/app/models/*"],
-      "@posts/*": ["src/app/posts/*"]
+      "@components/*": ["src/components/*"],
+      "@icons/*": ["src/components/icons/*"],
+      "@models/*": ["src/models/*"],
+      "@posts/*": ["src/app/posts/*"],
+      "@store/*": ["src/store/*"]
     },
     "baseUrl": "."
   },

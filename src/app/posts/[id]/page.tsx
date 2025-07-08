@@ -1,11 +1,13 @@
-import ArrowLeftIcon from '@icons/ArrowLeftIcon';
+import PageHeader from '../components/PageHeader';
+import CommentSection from '../components/CommentSection';
+import PostKebabMenuTrigger from './components/PostKebabMenuTrigger';
 import Button from '@components/Button';
 import Link from 'next/link';
 import CalendarIcon from '@icons/CalendarIcon';
 import EyeIcon from '@icons/EyeIcon';
-import CommentSection from '../components/CommentSection';
+import { Post } from '@models/post';
 
-const mockPosts = [
+const mockPosts: Post[] = [
   {
     id: 1,
     thumbnailUrl: 'https://placehold.co/400x200?text=썸네일',
@@ -37,9 +39,6 @@ const mockPosts = [
   },
 ];
 
-/**
- * 게시글 상세 페이지
- */
 const PostDetailPage = ({ params }: { params: { id: string } }) => {
   const post = mockPosts.find((p) => String(p.id) === params.id);
 
@@ -59,19 +58,12 @@ const PostDetailPage = ({ params }: { params: { id: string } }) => {
   return (
     <main className="flex min-h-[60vh] flex-col items-center bg-[var(--color-bg)] py-10">
       <div className="mx-auto w-full max-w-4xl px-4 md:px-12">
-        <div className="mb-2 flex w-full items-center justify-between">
-          <Link href="/posts" aria-label="뒤로가기">
-            <button
-              type="button"
-              className="mr-4 flex items-center text-[var(--color-black)]"
-            >
-              <ArrowLeftIcon className="h-5 w-5 cursor-pointer" />
-            </button>
-          </Link>
-          <h2 className="flex-1 text-2xl font-bold text-[var(--color-black)]">
-            게시글 상세
-          </h2>
-        </div>
+        <PageHeader
+          title="게시글 상세"
+          showBackButton={true}
+          backHref="/posts"
+          rightButton={<PostKebabMenuTrigger post={post} />}
+        />
         <div className="mt-8 flex flex-col">
           <div className="flex flex-col">
             {post.thumbnailUrl && (

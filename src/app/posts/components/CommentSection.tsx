@@ -1,6 +1,6 @@
 'use client';
-import CommentIcon from '@icons/CommentIcon';
 import { useState } from 'react';
+import CommentIcon from '@components/icons/CommentIcon';
 import Button from '@components/Button';
 
 /**

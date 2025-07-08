@@ -1,10 +1,10 @@
 'use client';
-import React, { useState } from 'react';
-import ArrowLeftIcon from '@icons/ArrowLeftIcon';
+import React, { useEffect, useState } from 'react';
 import CloseIcon from '@icons/CloseIcon';
 import Button from '@components/Button';
-import Link from 'next/link';
 import Modal from '@components/Modal';
+import PageHeader from '@posts/components/PageHeader';
+import { usePostStore } from '@store/usePostStore';
 
 /**
  * 게시글 작성 페이지
@@ -19,6 +19,18 @@ const PostWritePage = () => {
   const [modalPasswordTouched, setModalPasswordTouched] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+
+  const { getEditPost, setEditPost } = usePostStore();
+  const editPost = getEditPost();
+
+  useEffect(() => {
+    if (editPost) {
+      setTitle(editPost.title);
+      setContent(editPost.content);
+      setTags(editPost.tags);
+    }
+    return () => setEditPost(null);
+  }, []);
 
   const isValidPassword = (pw: string) =>
     pw.length === 6 && /^[A-Za-z0-9]+$/.test(pw);
@@ -77,22 +89,16 @@ const PostWritePage = () => {
   return (
     <main className="flex min-h-[60vh] flex-col items-center bg-[var(--color-bg)] py-10">
       <div className="mx-auto w-full max-w-4xl px-4 md:px-12">
-        <div className="mb-2 flex w-full items-center justify-between">
-          <Link href="/" aria-label="뒤로가기">
-            <button
-              type="button"
-              className="mr-4 flex items-center text-[var(--color-black)]"
-            >
-              <ArrowLeftIcon className="h-5 w-5 cursor-pointer" />
-            </button>
-          </Link>
-          <h2 className="flex-1 text-2xl font-bold text-[var(--color-black)]">
-            게시글 작성
-          </h2>
-          <div className="flex flex-1 justify-end">
-            <Button onClick={() => setModalOpen(true)}>게시하기</Button>
-          </div>
-        </div>
+        <PageHeader
+          title={editPost ? '게시글 수정' : '게시글 작성'}
+          showBackButton={true}
+          backHref="/"
+          rightButton={
+            <Button onClick={() => setModalOpen(true)}>
+              {editPost ? '저장하기' : '게시하기'}
+            </Button>
+          }
+        />
         {/* 게시글 작성 폼 */}
         <form className="mt-8 flex flex-col gap-6" onSubmit={handleSubmit}>
           <input
@@ -105,7 +111,7 @@ const PostWritePage = () => {
             required
           />
           <textarea
-            className="min-h-[180px] w-full resize-y rounded border border-[var(--color-border)] px-4 py-2 text-base text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none"
+            className="min-h-[320px] w-full resize-none rounded border border-[var(--color-border)] px-4 py-2 text-base text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none"
             placeholder="내용을 입력하세요"
             value={content}
             onChange={(e) => setContent(e.target.value)}

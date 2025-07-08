@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface EditIconProps {
+interface CreateIconProps {
   className?: string;
   style?: React.CSSProperties;
 }
 
-const EditIcon: React.FC<EditIconProps> = ({ className = '', style }) => (
+const CreateIcon: React.FC<CreateIconProps> = ({ className = '', style }) => (
   <svg
     width="24"
     height="24"
@@ -28,4 +28,4 @@ const EditIcon: React.FC<EditIconProps> = ({ className = '', style }) => (
   </svg>
 );
 
-export default EditIcon;
+export default CreateIcon;

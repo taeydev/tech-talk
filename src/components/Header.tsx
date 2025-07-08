@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Button from '@components/Button';
 import LinkIcon from '@icons/LinkIcon';
-import EditIcon from '@icons/EditIcon';
+import CreateIcon from '@icons/CreateIcon';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import Modal from '@components/Modal';
 
 /**
@@ -43,7 +43,7 @@ const Header: React.FC = () => {
                 className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left hover:bg-gray-100"
                 onClick={() => setOpen(false)}
               >
-                <EditIcon className="h-4 w-4 text-[var(--color-icon)]" />
+                <CreateIcon className="h-4 w-4 text-[var(--color-icon)]" />
                 일반 작성
               </button>
             </Link>
