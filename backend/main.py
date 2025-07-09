@@ -50,6 +50,9 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    post.views += 1
+    db.commit()
+    db.refresh(post)
     return {
         "id": post.id,
         "title": post.title,
