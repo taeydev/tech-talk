@@ -1,8 +1,9 @@
+import Link from 'next/link';
 import PageHeader from '../components/PageHeader';
 import CommentSection from '../components/CommentSection';
 import PostKebabMenuTrigger from './components/PostKebabMenuTrigger';
 import Button from '@components/Button';
-import Link from 'next/link';
+import FallbackImage from '@components/FallbackImage';
 import CalendarIcon from '@icons/CalendarIcon';
 import EyeIcon from '@icons/EyeIcon';
 import { getPostById } from '@api/posts';
@@ -37,11 +38,16 @@ const PostDetailPage = async ({ params }: { params: { id: string } }) => {
         />
         <div className="mt-8 flex flex-col">
           <div className="flex flex-col">
-            {post.thumbnailUrl && (
+            {post.thumbnailUrl ? (
               <img
                 src={post.thumbnailUrl}
                 alt="thumbnail"
                 className="mb-4 h-48 w-full rounded border border-[var(--color-border)] bg-[var(--color-border)] object-cover"
+              />
+            ) : (
+              <FallbackImage
+                alt="썸네일 없음"
+                className="mb-4 h-48 w-full rounded border border-[var(--color-border)] object-cover"
               />
             )}
             <div className="my-2 mt-6 text-lg font-bold text-[var(--color-black)]">

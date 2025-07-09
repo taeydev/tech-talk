@@ -1,7 +1,9 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import ArrowRightIcon from '@icons/ArrowRightIcon';
 import CalendarIcon from '@icons/CalendarIcon';
 import EyeIcon from '@icons/EyeIcon';
+import FallbackImage from '@components/FallbackImage';
 import type { Post } from '@models/post';
 
 interface PostListItemProps {
@@ -51,11 +53,24 @@ const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
           className="relative flex-shrink-0"
           style={{ width: 160, height: 80 }}
         >
-          <img
-            src={post.thumbnailUrl}
-            alt="thumbnail"
-            className="absolute top-1/2 right-0 h-20 w-32 -translate-y-1/2 rounded bg-[var(--color-border)] object-cover transition-transform duration-200 group-hover:-translate-x-8"
-          />
+          {post.thumbnailUrl ? (
+            <Image
+              src={post.thumbnailUrl}
+              alt={post.title}
+              className="h-24 w-40 rounded-md object-cover transition-transform duration-200 group-hover:-translate-x-8"
+              width={160}
+              height={90}
+              draggable={false}
+              priority={false}
+            />
+          ) : (
+            <FallbackImage
+              width={160}
+              height={90}
+              alt="썸네일 없음"
+              className="h-24 w-40 transition-transform duration-200 group-hover:-translate-x-8"
+            />
+          )}
           <ArrowRightIcon className="absolute top-1/2 right-0 z-10 h-5 w-5 -translate-y-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
         </div>
       </div>
