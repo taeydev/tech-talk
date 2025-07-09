@@ -8,6 +8,7 @@ interface PostPasswordModalProps {
   action: 'edit' | 'delete' | null;
   onClose: () => void;
   onConfirm: (password: string) => void;
+  errorMessage?: string;
 }
 
 const PostPasswordModal = ({
@@ -15,6 +16,7 @@ const PostPasswordModal = ({
   action,
   onClose,
   onConfirm,
+  errorMessage,
 }: PostPasswordModalProps) => {
   const [password, setPassword] = useState<string>('');
   const [passwordTouched, setPasswordTouched] = useState(false);
@@ -57,6 +59,11 @@ const PostPasswordModal = ({
         {passwordError && (
           <span className="text-xs text-[var(--color-error)]">
             비밀번호는 6자리, 영문과 숫자만 입력할 수 있습니다.
+          </span>
+        )}
+        {errorMessage && !passwordError && (
+          <span className="text-xs text-[var(--color-error)]">
+            {errorMessage}
           </span>
         )}
         <div className="mt-4 flex justify-end gap-2">

@@ -15,3 +15,4 @@ class Post(Base):
     tags = Column(JSON)
     url = Column(String(500))
     thumbnail_url = Column(String(500))
+    password_hash = Column(String(255), nullable=False)

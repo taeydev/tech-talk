@@ -1,10 +1,12 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import CloseIcon from '@icons/CloseIcon';
 import Button from '@components/Button';
 import Modal from '@components/Modal';
 import PageHeader from '@posts/components/PageHeader';
 import { usePostStore } from '@store/usePostStore';
+import { createPost, updatePost } from '@api/posts';
 
 /**
  * 게시글 작성 페이지
@@ -22,6 +24,8 @@ const PostWritePage = () => {
 
   const { getEditPost, setEditPost } = usePostStore();
   const editPost = getEditPost();
+  const editMode = editPost != null;
+  const router = useRouter();
 
   useEffect(() => {
     if (editPost) {
@@ -29,7 +33,6 @@ const PostWritePage = () => {
       setContent(editPost.content);
       setTags(editPost.tags);
     }
-    return () => setEditPost(null);
   }, []);
 
   const isValidPassword = (pw: string) =>
@@ -65,17 +68,49 @@ const PostWritePage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setModalOpen(true);
+    if (editMode) {
+      handleCreateOrUpdatePost();
+    } else {
+      setModalOpen(true);
+    }
   };
 
-  const handleModalConfirm = () => {
+  const handleCreateOrUpdatePost = async () => {
+    try {
+      if (editPost) {
+        const post = await updatePost(editPost.id, {
+          title,
+          content,
+          tags,
+        });
+        setTitle('');
+        setContent('');
+        setTags([]);
+        setEditPost(null); // 이동 전 초기화
+        router.push(`/posts/${post.id}`);
+      } else {
+        const post = await createPost({
+          title,
+          content,
+          tags,
+          password: modalPassword,
+        });
+        setTitle('');
+        setContent('');
+        setTags([]);
+        setEditPost(null); // 이동 전 초기화
+        router.push(`/posts/${post.id}`);
+      }
+    } catch (error) {
+      // TODO: toast 등으로 에러 메시지 처리 예정
+    }
+  };
+
+  const handleModalConfirm = async () => {
     setModalPasswordTouched(true);
     if (!isValidPassword(modalPassword)) return;
-    // 실제 게시글 등록 로직 (title, content, tags, modalPassword)
-    setModalOpen(false);
-    setModalPassword('');
-    setModalPasswordTouched(false);
-    // 성공 알림/리다이렉트 등 추가 가능
+    await handleCreateOrUpdatePost();
+    resetModalPassword();
   };
 
   const resetModalPassword = () => {
@@ -90,12 +125,12 @@ const PostWritePage = () => {
     <main className="flex min-h-[60vh] flex-col items-center bg-[var(--color-bg)] py-10">
       <div className="mx-auto w-full max-w-4xl px-4 md:px-12">
         <PageHeader
-          title={editPost ? '게시글 수정' : '게시글 작성'}
+          title={editMode ? '게시글 수정' : '게시글 작성'}
           showBackButton={true}
           backHref="/"
           rightButton={
-            <Button onClick={() => setModalOpen(true)}>
-              {editPost ? '저장하기' : '게시하기'}
+            <Button onClick={handleSubmit}>
+              {editMode ? '저장하기' : '게시하기'}
             </Button>
           }
         />

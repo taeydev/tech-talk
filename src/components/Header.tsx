@@ -1,11 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import Button from '@components/Button';
 import LinkIcon from '@icons/LinkIcon';
 import CreateIcon from '@icons/CreateIcon';
-import Link from 'next/link';
 import Modal from '@components/Modal';
+import { usePostStore } from '@store/usePostStore';
 
 /**
  * 기본 헤더 컴포넌트
@@ -16,6 +17,7 @@ const Header: React.FC = () => {
   const pathname = usePathname();
   const isWritePage = pathname.startsWith('/posts/write');
   const [url, setUrl] = useState('');
+  const { setEditPost } = usePostStore();
 
   return (
     <header className="header-custom box-border flex h-[65px] w-full items-center justify-between px-10 py-6">
@@ -41,7 +43,10 @@ const Header: React.FC = () => {
             <Link href="/posts/write" passHref>
               <button
                 className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left hover:bg-gray-100"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setEditPost(null);
+                  setOpen(false);
+                }}
               >
                 <CreateIcon className="h-4 w-4 text-[var(--color-icon)]" />
                 일반 작성
