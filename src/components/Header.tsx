@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@components/Button';
+import Input from '@components/Input';
 import LinkIcon from '@icons/LinkIcon';
 import CreateIcon from '@icons/CreateIcon';
 import Modal from '@components/Modal';
@@ -79,9 +80,9 @@ const Header: React.FC = () => {
             <br />
             생성된 내용은 이후에 직접 수정하실 수 있습니다.
           </div>
-          <input
+          <Input
             type="url"
-            className="w-full rounded border border-[var(--color-border)] px-3 py-2 text-sm placeholder:text-sm focus:ring-1 focus:ring-blue-200 focus:outline-none"
+            className="px-3 py-2 text-sm"
             placeholder="URL을 입력하세요"
             value={url}
             onChange={(e) => setUrl(e.target.value)}

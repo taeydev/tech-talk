@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Modal from '@components/Modal';
 import Button from '@components/Button';
+import Input from '@components/Input';
 
 interface PostPasswordModalProps {
   open: boolean;
@@ -46,9 +47,10 @@ const PostPasswordModal = ({
           게시글 {action === 'edit' ? '수정' : '삭제'}를 위해 비밀번호를
           입력하세요.
         </div>
-        <input
+        <Input
           type="password"
-          className={`w-full rounded border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none ${passwordError ? 'border-[var(--color-error)]' : ''}`}
+          className="text-sm"
+          error={passwordError}
           placeholder="비밀번호(6자리, 영문과 숫자만 입력)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

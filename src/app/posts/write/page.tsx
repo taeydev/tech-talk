@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CloseIcon from '@icons/CloseIcon';
 import Button from '@components/Button';
+import Input from '@components/Input';
 import Modal from '@components/Modal';
 import PageHeader from '@posts/components/PageHeader';
 import { usePostStore } from '@store/usePostStore';
@@ -136,9 +137,9 @@ const PostWritePage = () => {
         />
         {/* 게시글 작성 폼 */}
         <form className="mt-8 flex flex-col gap-6" onSubmit={handleSubmit}>
-          <input
+          <Input
             type="text"
-            className="w-full rounded border border-[var(--color-border)] px-4 py-2 text-lg text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none"
+            className="text-lg"
             placeholder="제목을 입력하세요"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -154,9 +155,9 @@ const PostWritePage = () => {
           />
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <input
+              <Input
                 type="text"
-                className="flex-1 rounded border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none"
+                className="flex-1 text-sm"
                 placeholder="태그를 입력하세요"
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
@@ -205,9 +206,10 @@ const PostWritePage = () => {
                 비밀번호 분실 시 게시글을 수정하거나 삭제할 수 없습니다.
               </span>
             </div>
-            <input
+            <Input
               type="password"
-              className={`w-full rounded border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none ${modalPasswordError ? 'border-[var(--color-error)]' : ''}`}
+              className="text-sm"
+              error={modalPasswordError}
               placeholder="비밀번호(6자리, 영문과 숫자만 입력)"
               value={modalPassword}
               onChange={(e) => setModalPassword(e.target.value)}
@@ -220,9 +222,10 @@ const PostWritePage = () => {
                 비밀번호는 6자리, 영문과 숫자만 입력할 수 있습니다.
               </span>
             )}
-            <input
+            <Input
               type="password"
-              className={`w-full rounded border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none ${confirmPasswordError ? 'border-[var(--color-error)]' : ''}`}
+              className="text-sm"
+              error={confirmPasswordError}
               placeholder="비밀번호 확인"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
