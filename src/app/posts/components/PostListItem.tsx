@@ -54,14 +54,13 @@ const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
           style={{ width: 160, height: 80 }}
         >
           {post.thumbnailUrl ? (
-            <Image
+            <img
               src={post.thumbnailUrl}
               alt={post.title}
               className="h-24 w-40 rounded-md object-cover transition-transform duration-200 group-hover:-translate-x-8"
               width={160}
               height={90}
               draggable={false}
-              priority={false}
             />
           ) : (
             <FallbackImage

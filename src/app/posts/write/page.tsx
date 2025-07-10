@@ -1,13 +1,21 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import CloseIcon from '@icons/CloseIcon';
 import Button from '@components/Button';
 import Input from '@components/Input';
 import Modal from '@components/Modal';
 import PageHeader from '@posts/components/PageHeader';
+import UrlPreviewCard from '@components/UrlPreviewCard';
+
 import { usePostStore } from '@store/usePostStore';
 import { createPost, updatePost } from '@api/posts';
+import {
+  fetchUrlPreview,
+  extractUrls,
+  isValidUrl,
+  type UrlPreviewData,
+} from '@utils/urlPreview';
 
 /**
  * 게시글 작성 페이지
@@ -22,6 +30,8 @@ const PostWritePage = () => {
   const [modalPasswordTouched, setModalPasswordTouched] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+  const [urlPreviews, setUrlPreviews] = useState<UrlPreviewData[]>([]);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   const { getEditPost, setEditPost } = usePostStore();
   const editPost = getEditPost();
@@ -67,6 +77,82 @@ const PostWritePage = () => {
     }
   };
 
+  // URL 미리보기 관련 함수들
+  const processContentForUrls = useCallback(
+    async (text: string) => {
+      const urls = extractUrls(text);
+      const newUrls = urls.filter(
+        (url) =>
+          isValidUrl(url) && !urlPreviews.some((preview) => preview.url === url)
+      );
+
+      if (newUrls.length > 0) {
+        setIsLoadingPreview(true);
+        try {
+          const newPreviews = (
+            await Promise.all(newUrls.map((url) => fetchUrlPreview(url)))
+          ).filter(Boolean) as UrlPreviewData[]; // null 제거 및 타입 단언
+          setUrlPreviews((prev) => [...prev, ...newPreviews]);
+        } catch (error) {
+          console.error('Error fetching URL previews:', error);
+        } finally {
+          setIsLoadingPreview(false);
+        }
+      }
+    },
+    [urlPreviews]
+  );
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+
+    // URL이 포함되어 있는지 확인하고 미리보기 처리
+    if (newContent.includes('http')) {
+      processContentForUrls(newContent);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const paste = e.clipboardData.getData('text');
+    // URL 패턴만 찾아서 decodeURI
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    let replaced = false;
+    const newText = paste.replace(urlRegex, (url) => {
+      if (/%[0-9A-Fa-f]{2}/.test(url)) {
+        try {
+          replaced = true;
+          return decodeURI(url);
+        } catch {
+          return url;
+        }
+      }
+      return url;
+    });
+    if (replaced) {
+      e.preventDefault();
+      const textarea = e.target as HTMLTextAreaElement;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newValue =
+        textarea.value.substring(0, start) +
+        newText +
+        textarea.value.substring(end);
+      setContent(newValue);
+      // 커서 위치도 맞춰주기
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd =
+          start + newText.length;
+      }, 0);
+    }
+  };
+
+  const removeUrlPreview = (urlToRemove: string) => {
+    setUrlPreviews((prev) =>
+      prev.filter((preview) => preview.url !== urlToRemove)
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editMode) {
@@ -77,12 +163,14 @@ const PostWritePage = () => {
   };
 
   const handleCreateOrUpdatePost = async () => {
+    const thumbnailUrl = urlPreviews.find((preview) => preview.image)?.image;
     try {
       if (editPost) {
         const post = await updatePost(editPost.id, {
           title,
           content,
           tags,
+          thumbnailUrl,
         });
         setTitle('');
         setContent('');
@@ -95,6 +183,7 @@ const PostWritePage = () => {
           content,
           tags,
           password: modalPassword,
+          thumbnailUrl,
         });
         setTitle('');
         setContent('');
@@ -140,19 +229,43 @@ const PostWritePage = () => {
           <Input
             type="text"
             className="text-lg"
-            placeholder="제목을 입력하세요"
+            placeholder="제목을 입력하세요(50자 이하)"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            maxLength={100}
+            maxLength={50}
             required
           />
           <textarea
             className="min-h-[320px] w-full resize-none rounded border border-[var(--color-border)] px-4 py-2 text-base text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none"
             placeholder="내용을 입력하세요"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={handleContentChange}
+            onPaste={handlePaste}
             required
           />
+          {urlPreviews.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="text-sm font-medium text-[var(--color-black)]">
+                링크 미리보기
+              </div>
+              <div className="flex flex-col gap-2">
+                {urlPreviews.map((preview) => (
+                  <UrlPreviewCard
+                    key={preview.url}
+                    data={preview}
+                    onRemove={() => removeUrlPreview(preview.url)}
+                    className="max-w-md"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          {isLoadingPreview && (
+            <div className="flex items-center gap-2 text-sm text-[var(--color-subtext)]">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-border)] border-t-[var(--color-button)]"></div>
+              링크 미리보기를 불러오는 중...
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               <Input

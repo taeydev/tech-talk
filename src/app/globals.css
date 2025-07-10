@@ -10,7 +10,7 @@
   --color-icon: #757575;
   --color-subtext: #8f8f8f;
   --color-button: #0a80ed;
-  --color-bg: #f9f9f9;
+  --color-bg: #fdfdfd;
   --color-error: #ef4444;
 }
 
@@ -36,6 +36,14 @@ body {
   background: var(--color-bg);
   color: var(--color-black);
   font-family: 'Pretendard', Arial, Helvetica, sans-serif;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .header-custom {
