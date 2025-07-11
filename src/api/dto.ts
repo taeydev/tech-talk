@@ -25,3 +25,10 @@ export interface PostUpdateDTO {
   url?: string;
   thumbnailUrl?: string;
 }
+
+export interface UrlAnalysisData {
+  url: string;
+  title: string;
+  summary: string[];
+  tags: string[];
+}

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@components/Button';
 import Input from '@components/Input';
@@ -8,6 +8,7 @@ import LinkIcon from '@icons/LinkIcon';
 import CreateIcon from '@icons/CreateIcon';
 import Modal from '@components/Modal';
 import { usePostStore } from '@store/usePostStore';
+import { analyzeUrlWithOpenAI } from '@api/posts';
 
 /**
  * 기본 헤더 컴포넌트
@@ -18,7 +19,46 @@ const Header: React.FC = () => {
   const pathname = usePathname();
   const isWritePage = pathname.startsWith('/posts/write');
   const [url, setUrl] = useState('');
-  const { setEditPost } = usePostStore();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { setEditPost, setAiAnalysisData } = usePostStore();
+  const router = useRouter();
+
+  // URL 분석 및 게시글 작성 페이지로 이동
+  const handleUrlSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim()) return;
+
+    setIsAnalyzing(true);
+    try {
+      const analysis = await analyzeUrlWithOpenAI(url);
+      if (analysis) {
+        // 분석 결과를 store에 저장
+        const postData = {
+          title: analysis.title,
+          content: analysis.summary,
+          tags: analysis.tags,
+          url: url,
+        };
+
+        setAiAnalysisData(postData);
+        router.push('/posts/write');
+      }
+    } catch (error) {
+      console.error('URL 분석 실패:', error);
+      // 에러가 발생해도 URL만 저장하고 게시글 작성 페이지로 이동
+      setAiAnalysisData({
+        title: '',
+        content: [],
+        tags: [],
+        url: url,
+      });
+      router.push('/posts/write');
+    } finally {
+      setIsAnalyzing(false);
+      setUrlModalOpen(false);
+      setOpen(false);
+    }
+  };
 
   return (
     <header className="header-custom box-border flex h-[65px] w-full items-center justify-between px-10 py-6">
@@ -65,14 +105,7 @@ const Header: React.FC = () => {
         }}
         title="URL로 간단하게 작성하기"
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            // TODO: handle url submit
-            setUrlModalOpen(false);
-            setOpen(false);
-          }}
-        >
+        <form onSubmit={handleUrlSubmit}>
           <div className="mb-3 text-sm font-normal text-[var(--color-subtext)]">
             입력하신 URL을 바탕으로{' '}
             <b className="text-[var(--color-button)]">AI</b>가 제목과 본문을{' '}
@@ -87,7 +120,14 @@ const Header: React.FC = () => {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             required
+            disabled={isAnalyzing}
           />
+          {isAnalyzing && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-[var(--color-subtext)]">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-border)] border-t-[var(--color-button)]"></div>
+              AI로 내용을 분석하는 중...
+            </div>
+          )}
           <div className="mt-6 flex justify-end gap-2">
             <Button
               type="button"
@@ -104,8 +144,9 @@ const Header: React.FC = () => {
               type="submit"
               variant="primary"
               className="px-4 py-1.5 text-sm"
+              disabled={isAnalyzing}
             >
-              확인
+              {isAnalyzing ? '분석 중...' : '확인'}
             </Button>
           </div>
         </form>

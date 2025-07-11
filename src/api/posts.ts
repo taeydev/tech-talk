@@ -1,9 +1,10 @@
 import { Post } from '@models/post';
-import { PostCreateDTO, PostDTO, PostUpdateDTO } from './dto';
+import { PostCreateDTO, PostDTO, PostUpdateDTO, UrlAnalysisData } from './dto';
 import { format, parseISO } from 'date-fns';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const POSTS_ENDPOINT = `${API_BASE_URL}/posts`;
+const ANALYZE_URL_ENDPOINT = `${API_BASE_URL}/analyze-url`;
 
 function mapPost(dto: PostDTO): Post {
   return {
@@ -128,4 +129,32 @@ export async function verifyPostPassword(
   if (res.ok) return true;
   if (res.status === 403) return false;
   throw new Error('비밀번호 검증에 실패했습니다.');
+}
+
+/**
+ * URL 내용을 분석하는 함수
+ */
+export async function analyzeUrlWithOpenAI(
+  url: string
+): Promise<UrlAnalysisData | null> {
+  try {
+    const response = await fetch(ANALYZE_URL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!response.ok) {
+      console.error('URL analysis failed:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error analyzing URL with OpenAI:', error);
+    return null;
+  }
 }

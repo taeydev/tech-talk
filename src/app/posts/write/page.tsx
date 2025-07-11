@@ -33,7 +33,8 @@ const PostWritePage = () => {
   const [urlPreviews, setUrlPreviews] = useState<UrlPreviewData[]>([]);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
-  const { getEditPost, setEditPost } = usePostStore();
+  const { getEditPost, setEditPost, getAiAnalysisData, clearAiAnalysisData } =
+    usePostStore();
   const editPost = getEditPost();
   const editMode = editPost != null;
   const router = useRouter();
@@ -43,8 +44,26 @@ const PostWritePage = () => {
       setTitle(editPost.title);
       setContent(editPost.content);
       setTags(editPost.tags);
+    } else {
+      // AI 분석 데이터에서 가져오기
+      const aiData = getAiAnalysisData();
+      if (aiData) {
+        if (!title) {
+          setTitle(aiData.title);
+        }
+        if (!content) {
+          setContent(
+            `${aiData.content.join('\n')}\n\n원문: ${decodeURI(aiData.url)}`
+          );
+        }
+        if (tags.length === 0) {
+          setTags(aiData.tags);
+        }
+        // AI 분석 데이터 사용 후 클리어
+        clearAiAnalysisData();
+      }
     }
-  }, []);
+  }, [editPost, getAiAnalysisData, clearAiAnalysisData]);
 
   const isValidPassword = (pw: string) =>
     pw.length === 6 && /^[A-Za-z0-9]+$/.test(pw);
