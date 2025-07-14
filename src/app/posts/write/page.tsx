@@ -247,7 +247,7 @@ const PostWritePage = () => {
         <form className="mt-8 flex flex-col gap-6" onSubmit={handleSubmit}>
           <Input
             type="text"
-            className="text-lg"
+            className="w-full text-lg"
             placeholder="제목을 입력하세요(50자 이하)"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -289,7 +289,7 @@ const PostWritePage = () => {
             <div className="flex gap-2">
               <Input
                 type="text"
-                className="flex-1 text-sm"
+                className="w-full flex-1 text-sm"
                 placeholder="태그를 입력하세요"
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
@@ -340,8 +340,12 @@ const PostWritePage = () => {
             </div>
             <Input
               type="password"
-              className="text-sm"
-              error={modalPasswordError}
+              className="w-full text-sm"
+              errorMessage={
+                modalPasswordError
+                  ? '비밀번호는 6자리, 영문과 숫자만 입력할 수 있습니다.'
+                  : undefined
+              }
               placeholder="비밀번호(6자리, 영문과 숫자만 입력)"
               value={modalPassword}
               onChange={(e) => setModalPassword(e.target.value)}
@@ -349,15 +353,14 @@ const PostWritePage = () => {
               maxLength={6}
               required
             />
-            {modalPasswordError && (
-              <span className="text-xs text-[var(--color-error)]">
-                비밀번호는 6자리, 영문과 숫자만 입력할 수 있습니다.
-              </span>
-            )}
             <Input
               type="password"
-              className="text-sm"
-              error={confirmPasswordError}
+              className="w-full text-sm"
+              errorMessage={
+                confirmPasswordError
+                  ? '비밀번호가 일치하지 않습니다.'
+                  : undefined
+              }
               placeholder="비밀번호 확인"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -365,11 +368,6 @@ const PostWritePage = () => {
               maxLength={6}
               required
             />
-            {confirmPasswordError && (
-              <span className="text-xs text-[var(--color-error)]">
-                비밀번호가 일치하지 않습니다.
-              </span>
-            )}
             <div className="mt-4 flex justify-end gap-2">
               <Button
                 type="button"

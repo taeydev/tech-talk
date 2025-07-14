@@ -1,21 +1,46 @@
+import {
+  PostListDTO,
+  PostDetailDTO,
+  PostCreateDTO,
+  PostUpdateDTO,
+  UrlAnalysisData,
+  CommentDTO,
+} from './dto';
 import { Post } from '@models/post';
-import { PostCreateDTO, PostDTO, PostUpdateDTO, UrlAnalysisData } from './dto';
-import { format, parseISO } from 'date-fns';
+import { Comment } from '@models/comment';
+import { format } from 'date-fns';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const POSTS_ENDPOINT = `${API_BASE_URL}/posts`;
 const ANALYZE_URL_ENDPOINT = `${API_BASE_URL}/analyze-url`;
 
-function mapPost(dto: PostDTO): Post {
+function mapCommentFromDTO(dto: CommentDTO): Comment {
+  return {
+    id: dto.id,
+    postId: dto.postId,
+    content: dto.content,
+    createdAt: format(new Date(dto.createdAt), 'yyyy-MM-dd HH:mm'),
+  };
+}
+
+function mapPostFromListDTO(dto: PostListDTO): Post {
   return {
     id: dto.id,
     title: dto.title,
     content: dto.content,
-    createdAt: format(parseISO(dto.createdAt), 'yyyy-MM-dd'),
+    createdAt: format(new Date(dto.createdAt), 'yyyy-MM-dd'),
     views: dto.views,
-    tags: dto.tags ? JSON.parse(JSON.stringify(dto.tags)) : [],
+    tags: dto.tags ?? [],
+    commentCount: dto.commentCount,
     url: dto.url ?? undefined,
     thumbnailUrl: dto.thumbnailUrl ?? undefined,
+  };
+}
+
+function mapPostFromDetailDTO(dto: PostDetailDTO): Post {
+  return {
+    ...mapPostFromListDTO(dto),
+    comments: dto.comments?.map(mapCommentFromDTO) ?? [],
   };
 }
 
@@ -26,8 +51,8 @@ export async function getPosts(): Promise<Post[]> {
   const res = await fetch(POSTS_ENDPOINT, { cache: 'no-store' });
   if (!res.ok) throw new Error('게시글 목록을 불러오지 못했습니다.');
 
-  const data: PostDTO[] = await res.json();
-  return data.map(mapPost);
+  const data: PostListDTO[] = await res.json();
+  return data.map(mapPostFromListDTO);
 }
 
 /**
@@ -39,17 +64,8 @@ export async function getPostById(id: string): Promise<Post> {
   });
   if (!res.ok) throw new Error('게시글을 불러오지 못했습니다.');
 
-  const data: PostDTO = await res.json();
-  return {
-    id: data.id,
-    title: data.title,
-    content: data.content,
-    createdAt: format(parseISO(data.createdAt), 'yyyy-MM-dd'),
-    views: data.views,
-    tags: data.tags ? JSON.parse(JSON.stringify(data.tags)) : [],
-    url: data.url ?? undefined,
-    thumbnailUrl: data.thumbnailUrl ?? undefined,
-  };
+  const data: PostDetailDTO = await res.json();
+  return mapPostFromDetailDTO(data);
 }
 
 /**
@@ -63,17 +79,8 @@ export async function createPost(newPost: PostCreateDTO): Promise<Post> {
   });
   if (!res.ok) throw new Error('게시글을 생성하지 못했습니다.');
 
-  const data: PostDTO = await res.json();
-  return {
-    id: data.id,
-    title: data.title,
-    content: data.content,
-    createdAt: format(parseISO(data.createdAt), 'yyyy-MM-dd'),
-    views: data.views,
-    tags: data.tags ? JSON.parse(JSON.stringify(data.tags)) : [],
-    url: data.url ?? undefined,
-    thumbnailUrl: data.thumbnailUrl ?? undefined,
-  };
+  const data: PostListDTO = await res.json();
+  return mapPostFromListDTO(data);
 }
 
 /**
@@ -90,17 +97,8 @@ export async function updatePost(
   });
   if (!res.ok) throw new Error('게시글을 수정하지 못했습니다.');
 
-  const data: PostDTO = await res.json();
-  return {
-    id: data.id,
-    title: data.title,
-    content: data.content,
-    createdAt: format(parseISO(data.createdAt), 'yyyy-MM-dd'),
-    views: data.views,
-    tags: data.tags ? JSON.parse(JSON.stringify(data.tags)) : [],
-    url: data.url ?? undefined,
-    thumbnailUrl: data.thumbnailUrl ?? undefined,
-  };
+  const data: PostListDTO = await res.json();
+  return mapPostFromListDTO(data);
 }
 
 /**
@@ -157,4 +155,71 @@ export async function analyzeUrlWithOpenAI(
     console.error('Error analyzing URL with OpenAI:', error);
     return null;
   }
+}
+
+/**
+ * 댓글 등록
+ */
+export async function postComment({
+  postId,
+  content,
+  password,
+}: {
+  postId: number;
+  content: string;
+  password: string;
+}): Promise<Comment> {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${API_BASE_URL}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ postId, content, password }),
+  });
+  if (!res.ok) throw new Error('댓글 등록에 실패했습니다.');
+  const data: CommentDTO = await res.json();
+  return mapCommentFromDTO(data);
+}
+
+/**
+ * 댓글 수정
+ */
+export async function updateComment({
+  commentId,
+  content,
+  password,
+}: {
+  commentId: number;
+  content: string;
+  password: string;
+}): Promise<Comment> {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content, password }),
+  });
+  if (!res.ok) throw new Error('댓글 수정에 실패했습니다.');
+  const data: CommentDTO = await res.json();
+  return mapCommentFromDTO(data);
+}
+
+/**
+ * 댓글 삭제
+ */
+export async function deleteComment({
+  commentId,
+  password,
+}: {
+  commentId: number;
+  password: string;
+}): Promise<boolean> {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  if (res.ok) return true;
+  if (res.status === 403) throw new Error('비밀번호가 일치하지 않습니다.');
+  throw new Error('댓글 삭제에 실패했습니다.');
 }

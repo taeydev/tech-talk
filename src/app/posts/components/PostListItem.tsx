@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ArrowRightIcon from '@icons/ArrowRightIcon';
 import CalendarIcon from '@icons/CalendarIcon';
 import EyeIcon from '@icons/EyeIcon';
+import CommentIcon from '@icons/CommentIcon';
 import FallbackImage from '@components/FallbackImage';
 import type { Post } from '@models/post';
 
@@ -32,6 +33,10 @@ const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
             <span className="flex items-center gap-1">
               <EyeIcon className="h-4 w-4 text-[var(--color-icon)]" />
               {post.views.toLocaleString()}
+            </span>
+            <span className="flex items-center gap-1">
+              <CommentIcon className="h-4 w-4 text-[var(--color-icon)]" />
+              {post.commentCount}
             </span>
           </div>
           <div className="mt-1">

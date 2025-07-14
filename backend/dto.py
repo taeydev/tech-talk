@@ -14,4 +14,9 @@ class PostUpdate(BaseModel):
     content: str
     tags: List[str]
     url: Optional[str] = None
-    thumbnailUrl: Optional[str] = None 
+    thumbnailUrl: Optional[str] = None
+
+class CommentCreate(BaseModel):
+    postId: int
+    content: str
+    password: str 

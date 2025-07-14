@@ -1,12 +1,24 @@
-export interface PostDTO {
+export interface PostListDTO {
   id: number;
   title: string;
   content: string;
   createdAt: string;
   views: number;
-  tags: string | null;
-  url?: string | null;
-  thumbnailUrl?: string | null;
+  tags: string[];
+  commentCount: number;
+  url?: string;
+  thumbnailUrl?: string;
+}
+
+export interface PostDetailDTO extends PostListDTO {
+  comments: CommentDTO[];
+}
+
+export interface CommentDTO {
+  id: number;
+  postId: number;
+  content: string;
+  createdAt: string;
 }
 
 export interface PostCreateDTO {

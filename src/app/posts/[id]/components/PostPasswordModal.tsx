@@ -49,8 +49,12 @@ const PostPasswordModal = ({
         </div>
         <Input
           type="password"
-          className="text-sm"
-          error={passwordError}
+          className="w-full text-sm"
+          errorMessage={
+            passwordError
+              ? '비밀번호는 6자리, 영문과 숫자만 입력할 수 있습니다.'
+              : errorMessage
+          }
           placeholder="비밀번호(6자리, 영문과 숫자만 입력)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -58,16 +62,6 @@ const PostPasswordModal = ({
           maxLength={6}
           required
         />
-        {passwordError && (
-          <span className="text-xs text-[var(--color-error)]">
-            비밀번호는 6자리, 영문과 숫자만 입력할 수 있습니다.
-          </span>
-        )}
-        {errorMessage && !passwordError && (
-          <span className="text-xs text-[var(--color-error)]">
-            {errorMessage}
-          </span>
-        )}
         <div className="mt-4 flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={handleClose}>
             취소

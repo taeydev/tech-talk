@@ -115,7 +115,7 @@ const Header: React.FC = () => {
           </div>
           <Input
             type="url"
-            className="px-3 py-2 text-sm"
+            className="w-full px-3 py-2 text-sm"
             placeholder="URL을 입력하세요"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
