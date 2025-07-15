@@ -20,23 +20,26 @@ const PostListClient = ({ initialPosts, total }: PostListClientProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const loaderRef = useRef(null);
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = async () => {
     if (isLoading || !hasNext) return;
     setIsLoading(true);
     try {
       const res = await getPosts(posts.length, LIMIT);
-      setPosts((prev) => [...prev, ...res.posts]);
+      setPosts((prev) => {
+        const ids = new Set(prev.map((p) => p.id));
+        return [...prev, ...res.posts.filter((p: Post) => !ids.has(p.id))];
+      });
       setHasNext(res.has_next);
     } finally {
       setIsLoading(false);
     }
-  }, [posts.length, hasNext, isLoading]);
+  };
 
   useEffect(() => {
     if (!hasNext || isLoading) return;
     const observer = new window.IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && hasNext && !isLoading) {
           fetchPosts();
         }
       },
@@ -46,7 +49,7 @@ const PostListClient = ({ initialPosts, total }: PostListClientProps) => {
     return () => {
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
-  }, [fetchPosts, hasNext, isLoading]);
+  }, [hasNext, isLoading]);
 
   return (
     <>
