@@ -59,3 +59,42 @@ export function isValidUrl(url: string): boolean {
     return false;
   }
 }
+
+/**
+ * Next.js _next/image 프록시 URL에서 원본 이미지 URL 추출
+ */
+export function extractOriginalImageUrl(imgUrl: string): string {
+  try {
+    if (imgUrl && imgUrl.includes('_next/image')) {
+      const urlObj = new URL(
+        imgUrl,
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : 'http://localhost'
+      );
+      const urlParam = urlObj.searchParams.get('url');
+      if (urlParam) {
+        return decodeURIComponent(urlParam);
+      }
+    }
+  } catch {}
+  return imgUrl;
+}
+
+/**
+ * 일반적인 이미지 URL 검증
+ * - http/https로 시작
+ * - 이미지 확장자(jpg, jpeg, png, gif, webp, bmp, svg)로 끝나는지
+ */
+export function isValidThumbnailUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  // http/https로 시작하는지
+  if (!/^https?:\/\//i.test(url)) return false;
+  // 이미지 확장자로 끝나는지 (쿼리스트링 허용)
+  const validExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+  const extMatch = url.match(/\.([a-zA-Z0-9]+)(\?.*)?$/);
+  if (!extMatch) return false;
+  const ext = extMatch[1].toLowerCase();
+  if (!validExts.includes(ext)) return false;
+  return true;
+}

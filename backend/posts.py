@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session, joinedload
 from models import Post, Comment
 from database import SessionLocal
@@ -15,9 +15,14 @@ def get_db():
     finally:
         db.close()
 
-# 게시글 목록 조회 API
+# 게시글 목록 조회 API (페이징 지원)
 @router.get("/posts")
-def read_posts(db: Session = Depends(get_db)):
+def read_posts(
+    db: Session = Depends(get_db),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+):
+    total = db.query(Post).count()
     posts_with_count = (
         db.query(
             Post,
@@ -26,9 +31,11 @@ def read_posts(db: Session = Depends(get_db)):
         .outerjoin(Comment, Comment.post_id == Post.id)
         .group_by(Post.id)
         .order_by(Post.created_at.desc())
+        .offset(offset)
+        .limit(limit)
         .all()
     )
-    return [
+    posts = [
         {
             "id": post.id,
             "title": post.title,
@@ -42,6 +49,12 @@ def read_posts(db: Session = Depends(get_db)):
         }
         for post, comment_count in posts_with_count
     ]
+    has_next = offset + limit < total
+    return {
+        "posts": posts,
+        "has_next": has_next,
+        "total": total
+    }
 
 # 게시글 단일 조회 API
 @router.get("/posts/{post_id}")

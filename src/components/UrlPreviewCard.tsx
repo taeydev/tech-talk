@@ -47,7 +47,7 @@ const UrlPreviewCard: React.FC<UrlPreviewCardProps> = ({
       target="_blank"
       rel="noopener noreferrer"
       tabIndex={0}
-      className={`group relative block overflow-hidden rounded-lg border border-[var(--color-border)] bg-white transition-all hover:shadow-md hover:shadow-black/3 focus:outline-none ${className}`}
+      className={`group relative block w-[450px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-white transition-all hover:shadow-md hover:shadow-black/3 focus:outline-none ${className}`}
       aria-label={data.title || data.url}
     >
       {onRemove && (
@@ -74,7 +74,7 @@ const UrlPreviewCard: React.FC<UrlPreviewCardProps> = ({
           </svg>
         </button>
       )}
-      <div className="flex min-h-[90px] items-stretch">
+      <div className="flex min-h-[90px] items-stretch overflow-hidden">
         <div className="relative aspect-[16/9] w-40 flex-shrink-0 overflow-hidden rounded-none">
           {(!absoluteImageUrl || imgError) && (
             <FallbackImage className="absolute inset-0 h-full w-full rounded-none" />
@@ -90,22 +90,23 @@ const UrlPreviewCard: React.FC<UrlPreviewCardProps> = ({
             />
           )}
         </div>
-        <div className="flex min-h-[90px] flex-1 flex-col justify-between p-3">
+        <div className="flex min-h-[90px] min-w-0 flex-1 flex-col justify-between overflow-hidden p-3">
+          {/* 텍스트들 */}
           <div className="flex-1">
             {data.title && (
-              <h3 className="mb-1 line-clamp-2 text-sm font-medium text-[var(--color-black)]">
+              <h3 className="mb-1 line-clamp-2 text-sm font-medium break-words text-[var(--color-black)]">
                 {data.title}
               </h3>
             )}
             {data.description && (
-              <p className="line-clamp-2 text-xs text-[var(--color-subtext)]">
+              <p className="line-clamp-2 text-xs break-words text-[var(--color-subtext)]">
                 {data.description}
               </p>
             )}
           </div>
-          <div className="mt-2 flex items-center gap-1 text-xs text-[var(--color-subtext)]">
-            <LinkIcon className="h-3 w-3" />
-            <span className="truncate">{data.siteName}</span>
+          <div className="mt-2 flex min-w-0 items-center gap-1 text-xs text-[var(--color-subtext)]">
+            <LinkIcon className="h-3 w-3 flex-shrink-0" />
+            <span className="min-w-0 flex-1 truncate">{data.siteName}</span>
           </div>
         </div>
       </div>

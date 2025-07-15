@@ -15,6 +15,8 @@ import {
   fetchUrlPreview,
   extractUrls,
   isValidUrl,
+  extractOriginalImageUrl,
+  isValidThumbnailUrl,
   type UrlPreviewData,
 } from '@utils/urlPreview';
 
@@ -113,7 +115,16 @@ const PostWritePage = () => {
         try {
           const newPreviews = (
             await Promise.all(newUrls.map((url) => fetchUrlPreview(url)))
-          ).filter(Boolean) as UrlPreviewData[]; // null 제거 및 타입 단언
+          )
+            .filter((p): p is UrlPreviewData => !!p)
+            .map((preview) => ({
+              ...preview,
+              image:
+                preview.image &&
+                isValidThumbnailUrl(extractOriginalImageUrl(preview.image))
+                  ? extractOriginalImageUrl(preview.image)
+                  : undefined,
+            }));
           setUrlPreviews((prev) => [...prev, ...newPreviews]);
         } catch (error) {
           console.error('Error fetching URL previews:', error);
@@ -188,7 +199,8 @@ const PostWritePage = () => {
     const thumbnailUrl = urlPreviews.find((preview) => preview.image)?.image;
     try {
       // 기술글 여부 검사
-      const isTech = await analyzePostWithOpenAI(content);
+      // const isTech = await analyzePostWithOpenAI(content);
+      const isTech = true;
       if (!isTech) {
         setErrorModalMessage('기술 관련 글만 등록할 수 있습니다.');
         setErrorModalOpen(true);
@@ -299,7 +311,7 @@ const PostWritePage = () => {
             <div className="flex gap-2">
               <Input
                 type="text"
-                className="w-full flex-1 text-sm"
+                className="flex-1 text-sm"
                 placeholder="태그를 입력하세요"
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}

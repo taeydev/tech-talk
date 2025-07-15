@@ -48,12 +48,12 @@ function mapPostFromDetailDTO(dto: PostDetailDTO): Post {
 /**
  * 게시글 목록 조회
  */
-export async function getPosts(): Promise<Post[]> {
-  const res = await fetch(POSTS_ENDPOINT, { cache: 'no-store' });
+export async function getPosts(offset = 0, limit = 20) {
+  const res = await fetch(`${POSTS_ENDPOINT}?offset=${offset}&limit=${limit}`, {
+    cache: 'no-store',
+  });
   if (!res.ok) throw new Error('게시글 목록을 불러오지 못했습니다.');
-
-  const data: PostListDTO[] = await res.json();
-  return data.map(mapPostFromListDTO);
+  return await res.json(); // { posts, has_next, total }
 }
 
 /**

@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import ArrowRightIcon from '@icons/ArrowRightIcon';
 import CalendarIcon from '@icons/CalendarIcon';
@@ -17,15 +16,15 @@ interface PostListItemProps {
 const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
   return (
     <Link href={`/posts/${post.id}`} className="block">
-      <div className="group flex w-full cursor-pointer items-start justify-between border-b border-[var(--color-border)] px-4 py-4 transition hover:bg-[rgba(0,0,0,0.03)]">
+      <div className="group flex min-h-32 w-full cursor-pointer items-stretch justify-between border-b border-[var(--color-border)] px-4 py-4 transition hover:bg-[rgba(0,0,0,0.03)]">
         <div className="flex max-w-[65%] min-w-0 flex-1 flex-col">
           <div className="mb-2 truncate text-base font-bold text-[var(--color-black)]">
             {post.title}
           </div>
-          <div className="mb-1 line-clamp-2 text-sm leading-snug break-words text-[var(--color-subtext)]">
+          <div className="mb-2 line-clamp-2 text-sm leading-snug break-words text-[var(--color-subtext)]">
             {post.content}
           </div>
-          <div className="mt-1 mb-1 flex items-center gap-4 text-xs text-[var(--color-subtext)]">
+          <div className="mt-auto flex items-center gap-4 text-xs text-[var(--color-subtext)]">
             <span className="flex items-center gap-1">
               <CalendarIcon className="h-4 w-4 text-[var(--color-icon)]" />
               {post.createdAt}
@@ -39,7 +38,7 @@ const PostListItem: React.FC<PostListItemProps> = ({ post }) => {
               {post.commentCount}
             </span>
           </div>
-          <div className="mt-1">
+          <div className="mt-2">
             {post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
