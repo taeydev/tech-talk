@@ -7,9 +7,10 @@ import Input from '@components/Input';
 import Modal from '@components/Modal';
 import PageHeader from '@posts/components/PageHeader';
 import UrlPreviewCard from '@components/UrlPreviewCard';
+import AlertIcon from '@components/icons/AlertIcon';
 
 import { usePostStore } from '@store/usePostStore';
-import { createPost, updatePost } from '@api/posts';
+import { createPost, updatePost, analyzePostWithOpenAI } from '@api/posts';
 import {
   fetchUrlPreview,
   extractUrls,
@@ -32,6 +33,8 @@ const PostWritePage = () => {
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
   const [urlPreviews, setUrlPreviews] = useState<UrlPreviewData[]>([]);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState('');
 
   const { getEditPost, setEditPost, getAiAnalysisData, clearAiAnalysisData } =
     usePostStore();
@@ -184,6 +187,13 @@ const PostWritePage = () => {
   const handleCreateOrUpdatePost = async () => {
     const thumbnailUrl = urlPreviews.find((preview) => preview.image)?.image;
     try {
+      // 기술글 여부 검사
+      const isTech = await analyzePostWithOpenAI(content);
+      if (!isTech) {
+        setErrorModalMessage('기술 관련 글만 등록할 수 있습니다.');
+        setErrorModalOpen(true);
+        return;
+      }
       if (editPost) {
         const post = await updatePost(editPost.id, {
           title,
@@ -385,6 +395,25 @@ const PostWritePage = () => {
                 확인
               </Button>
             </div>
+          </div>
+        </Modal>
+        <Modal
+          open={errorModalOpen}
+          onClose={() => setErrorModalOpen(false)}
+          title="알림"
+        >
+          <div className="flex flex-col items-center gap-3 py-6">
+            <AlertIcon className="h-8 w-8 text-[var(--color-error)]" />
+            <span className="text-center text-base">{errorModalMessage}</span>
+          </div>
+          <div className="mt-4 flex justify-center">
+            <Button
+              variant="primary"
+              onClick={() => setErrorModalOpen(false)}
+              className="w-32"
+            >
+              확인
+            </Button>
           </div>
         </Modal>
       </div>

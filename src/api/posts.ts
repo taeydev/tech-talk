@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const POSTS_ENDPOINT = `${API_BASE_URL}/posts`;
 const ANALYZE_URL_ENDPOINT = `${API_BASE_URL}/analyze-url`;
+const ANALYZE_POST_ENDPOINT = `${API_BASE_URL}/analyze-post`;
 
 function mapCommentFromDTO(dto: CommentDTO): Comment {
   return {
@@ -154,6 +155,28 @@ export async function analyzeUrlWithOpenAI(
   } catch (error) {
     console.error('Error analyzing URL with OpenAI:', error);
     return null;
+  }
+}
+
+/**
+ * 글 내용을 OpenAI로 기술 관련 여부 판별
+ */
+export async function analyzePostWithOpenAI(content: string): Promise<boolean> {
+  try {
+    const response = await fetch(ANALYZE_POST_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content }),
+    });
+    if (response.status === 400) return false;
+    if (!response.ok) throw new Error('글 분석에 실패했습니다.');
+    const data = await response.json();
+    return !!data.is_tech;
+  } catch (error) {
+    console.error('Error analyzing post with OpenAI:', error);
+    throw error;
   }
 }
 
