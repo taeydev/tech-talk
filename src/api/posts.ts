@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const POSTS_ENDPOINT = `${API_BASE_URL}/posts`;
+const COMMENTS_ENDPOINT = `${API_BASE_URL}/comments`;
 const ANALYZE_URL_ENDPOINT = `${API_BASE_URL}/analyze-url`;
 const ANALYZE_POST_ENDPOINT = `${API_BASE_URL}/analyze-post`;
 
@@ -53,7 +54,11 @@ export async function getPosts(offset = 0, limit = 20) {
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('게시글 목록을 불러오지 못했습니다.');
-  return await res.json(); // { posts, has_next, total }
+  const data = await res.json(); // { posts, has_next, total }
+  return {
+    ...data,
+    posts: data.posts.map(mapPostFromListDTO),
+  };
 }
 
 /**
@@ -192,8 +197,7 @@ export async function postComment({
   content: string;
   password: string;
 }): Promise<Comment> {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-  const res = await fetch(`${API_BASE_URL}/comments`, {
+  const res = await fetch(COMMENTS_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ postId, content, password }),
@@ -215,8 +219,7 @@ export async function updateComment({
   content: string;
   password: string;
 }): Promise<Comment> {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-  const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+  const res = await fetch(`${COMMENTS_ENDPOINT}/${commentId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content, password }),
@@ -236,8 +239,7 @@ export async function deleteComment({
   commentId: number;
   password: string;
 }): Promise<boolean> {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-  const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+  const res = await fetch(`${COMMENTS_ENDPOINT}/${commentId}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password }),
@@ -245,4 +247,18 @@ export async function deleteComment({
   if (res.ok) return true;
   if (res.status === 403) throw new Error('비밀번호가 일치하지 않습니다.');
   throw new Error('댓글 삭제에 실패했습니다.');
+}
+
+// 댓글 페이징 조회
+export async function getComments(
+  postId: number,
+  offset: number,
+  limit: number
+) {
+  const res = await fetch(
+    `${COMMENTS_ENDPOINT}/${postId}?offset=${offset}&limit=${limit}`
+  );
+  if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.');
+  const data: CommentDTO[] = await res.json();
+  return data.map(mapCommentFromDTO);
 }

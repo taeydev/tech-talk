@@ -67,7 +67,7 @@ const PostDetailPage = async ({ params }: { params: { id: string } }) => {
                   </span>
                   <span className="flex items-center gap-1">
                     <CommentIcon className="h-4 w-4 text-white opacity-80" />
-                    {post.comments?.length ?? 0}
+                    {post.commentCount}
                   </span>
                 </div>
               </div>
@@ -90,7 +90,11 @@ const PostDetailPage = async ({ params }: { params: { id: string } }) => {
                 ))}
               </div>
             )}
-            <CommentSection comments={post.comments ?? []} postId={post.id} />
+            <CommentSection
+              comments={post.comments ?? []}
+              postId={post.id}
+              commentCount={post.commentCount}
+            />
           </div>
         </div>
       </div>

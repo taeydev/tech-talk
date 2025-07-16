@@ -13,7 +13,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ error, errorMessage, className = '', ...props }, ref) => {
     const isError = error || !!errorMessage;
     return (
-      <div>
+      <>
         <input
           ref={ref}
           className={`rounded border border-[var(--color-border)] px-4 py-2 text-[var(--color-black)] placeholder:text-gray-400 focus:ring-1 focus:ring-blue-200 focus:outline-none ${isError ? 'border-[var(--color-error)]' : ''} ${className}`}
@@ -24,7 +24,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {errorMessage}
           </div>
         )}
-      </div>
+      </>
     );
   }
 );

@@ -66,6 +66,15 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(post)
     
+    # 댓글 10개만 페이징해서 가져오기 및 댓글 카운트
+    comments = (
+        db.query(Comment)
+        .filter(Comment.post_id == post.id)
+        .order_by(Comment.created_at.asc())
+        .limit(10)
+        .all()
+    )
+    comment_count = db.query(Comment).filter(Comment.post_id == post.id).count()
     return {
         "id": post.id,
         "title": post.title,
@@ -75,6 +84,7 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         "tags": post.tags,
         "url": post.url,
         "thumbnailUrl": post.thumbnail_url,
+        "commentCount": comment_count,
         "comments": [
             {
                 "id": comment.id,
@@ -82,7 +92,7 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
                 "content": comment.content,
                 "createdAt": comment.created_at.isoformat() + 'Z',
             }
-            for comment in post.comments
+            for comment in comments
         ],
     }
 

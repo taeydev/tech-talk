@@ -13,6 +13,7 @@ interface CommentItemProps {
   comment: Comment;
   onUpdate?: (updated: Comment) => void;
   onDelete?: (id: number) => void;
+  className?: string;
 }
 
 /**
@@ -22,6 +23,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   comment,
   onUpdate,
   onDelete,
+  className,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [mode, setMode] = useState<'none' | 'edit' | 'delete'>('none');
@@ -76,7 +78,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   return (
     <div
-      className="group relative flex items-start gap-2 border-b border-[var(--color-border)] px-2 py-3 transition-colors last:border-b-0 hover:bg-gray-50"
+      className={`group relative flex items-start gap-2 border-b border-[var(--color-border)] px-2 py-3 transition-colors last:border-b-0 hover:bg-gray-50 ${className || ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >

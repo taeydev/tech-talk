@@ -307,11 +307,11 @@ const PostWritePage = () => {
               링크 미리보기를 불러오는 중...
             </div>
           )}
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
+          <div className="flex w-full flex-col gap-2">
+            <div className="flex w-full gap-2">
               <Input
                 type="text"
-                className="flex-1 text-sm"
+                className="w-full flex-1 text-sm"
                 placeholder="태그를 입력하세요"
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}

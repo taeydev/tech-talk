@@ -5,13 +5,16 @@ import Button from '@components/Button';
 import Input from '@components/Input';
 import { Comment } from '@models/comment';
 import CommentItem from './CommentItem';
-import { postComment } from '@api/posts';
+import { postComment, getComments } from '@api/posts';
 import { useRouter } from 'next/navigation';
 
 interface CommentSectionProps {
   comments: Comment[];
   postId: number;
+  commentCount: number;
 }
+
+const PAGE_SIZE = 10;
 
 /**
  * 댓글 영역 컴포넌트
@@ -19,6 +22,7 @@ interface CommentSectionProps {
 const CommentSection = ({
   comments: initialComments,
   postId,
+  commentCount,
 }: CommentSectionProps) => {
   const router = useRouter();
   const [comment, setComment] = useState<string>('');
@@ -26,6 +30,9 @@ const CommentSection = ({
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [hasMore, setHasMore] = useState(initialComments.length === PAGE_SIZE);
+  const [recentComment, setRecentComment] = useState<Comment | null>(null);
 
   const handleRegister = async () => {
     setLoading(true);
@@ -36,7 +43,18 @@ const CommentSection = ({
         content: comment,
         password,
       });
-      setComments((prev) => [...prev, newComment]);
+      if (recentComment) {
+        setComments((prev) => {
+          // 기존에 새로 등록한 댓글이 이미 들어가 있지 않은 경우에만 추가
+          if (!prev.some((c) => c.id === recentComment.id)) {
+            return [...prev, recentComment];
+          }
+          return prev;
+        });
+      }
+      setRecentComment(newComment); // 새로 등록한 댓글을 별도 상태로 저장
+      const totalCount = comments.length + (recentComment ? 1 : 0) + 1; // 기존 댓글 + recentComment + 새로 등록한 댓글
+      setHasMore(totalCount < commentCount);
       setComment('');
       setPassword('');
       router.refresh();
@@ -47,13 +65,20 @@ const CommentSection = ({
     }
   };
 
+  const handleLoadMore = async () => {
+    const newComments = await getComments(postId, comments.length, PAGE_SIZE);
+    setComments((prev) => [...prev, ...newComments]);
+    let cnt = comments.length + newComments.length + (recentComment ? 1 : 0);
+    setHasMore(cnt < commentCount);
+  };
+
   return (
     <div className="border-t border-[var(--color-border)] pt-8">
       <span className="mb-4 flex items-center gap-1 text-base font-semibold text-[var(--color-black)]">
         <CommentIcon className="h-4 w-4 text-[var(--color-icon)]" />
         댓글
         <span className="ml-1 text-sm font-normal text-[var(--color-subtext)]">
-          {comments.length}
+          {commentCount}
         </span>
       </span>
       <div className="mt-4 flex flex-col gap-2">
@@ -87,21 +112,43 @@ const CommentSection = ({
         </div>
       </div>
       <div className="mt-6 flex flex-col">
-        {comments.map((item) => (
+        {comments
+          .filter((item) => !recentComment || item.id !== recentComment.id)
+          .map((item) => (
+            <CommentItem
+              key={item.id}
+              comment={item}
+              onUpdate={(updated) =>
+                setComments((prev) =>
+                  prev.map((c) => (c.id === updated.id ? updated : c))
+                )
+              }
+              onDelete={(id) => {
+                setComments((prev) => prev.filter((c) => c.id !== id));
+                router.refresh();
+              }}
+            />
+          ))}
+        {hasMore && (
+          <Button
+            type="button"
+            variant="outline"
+            className="my-4 self-center"
+            onClick={handleLoadMore}
+            size="small"
+          >
+            댓글 더보기
+          </Button>
+        )}
+        {recentComment && (
           <CommentItem
-            key={item.id}
-            comment={item}
-            onUpdate={(updated) =>
-              setComments((prev) =>
-                prev.map((c) => (c.id === updated.id ? updated : c))
-              )
-            }
-            onDelete={(id) => {
-              setComments((prev) => prev.filter((c) => c.id !== id));
-              router.refresh();
-            }}
+            key={recentComment.id}
+            comment={recentComment}
+            onUpdate={(updated) => setRecentComment(updated)}
+            onDelete={() => setRecentComment(null)}
+            className="bg-blue-50 hover:bg-blue-50"
           />
-        ))}
+        )}
       </div>
     </div>
   );

@@ -79,4 +79,28 @@ def delete_comment(
         raise HTTPException(status_code=403, detail="Incorrect password")
     db.delete(comment)
     db.commit()
-    return {"success": True} 
+    return {"success": True}
+
+# 댓글 페이징 조회 API
+@router.get("/comments/{post_id}")
+def get_comments(post_id: int, offset: int = 0, limit: int = 20, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    comments = (
+        db.query(Comment)
+        .filter(Comment.post_id == post_id)
+        .order_by(Comment.created_at.asc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return [
+        {
+            "id": c.id,
+            "postId": c.post_id,
+            "content": c.content,
+            "createdAt": c.created_at.isoformat() + 'Z',
+        }
+        for c in comments
+    ] 
