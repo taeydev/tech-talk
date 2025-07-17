@@ -1,61 +1,61 @@
 'use client';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PostKebabMenu from './PostKebabMenu';
-import PostPasswordModal from './PostPasswordModal';
 import { Post } from '@models/post';
 import { usePostStore } from '@store/usePostStore';
 import { verifyPostPassword, deletePost } from '@/api/posts';
+import { useModalStore } from '@store/useModalStore';
+
+export type PasswordCheckResult =
+  | { success: true }
+  | {
+      success: false;
+      error: 'password' | 'delete' | 'network' | 'unknown';
+      message?: string;
+    };
 
 const PostKebabMenuTrigger = ({ post }: { post: Post }) => {
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [action, setAction] = useState<'edit' | 'delete' | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  );
   const router = useRouter();
   const { setEditPost } = usePostStore();
+  const { openModal } = useModalStore();
 
   const handleMenuClick = (action: 'edit' | 'delete') => {
-    setAction(action);
-    setModalOpen(true);
-    setErrorMessage(undefined);
-  };
-
-  const handleModalConfirm = async (password: string) => {
-    if (!action) return;
-    const ok = await verifyPostPassword(post.id, password);
-    if (ok) {
-      if (action === 'edit') {
-        setEditPost(post);
-        router.push('/posts/write');
-      } else if (action === 'delete') {
-        try {
-          await deletePost(post.id);
-          router.push('/posts');
-        } catch (error) {
-          // TODO: 삭제 실패 안내 (예: toast, alert 등)
-          return;
+    openModal('passwordCheck', {
+      action,
+      onConfirm: async (password: string): Promise<PasswordCheckResult> => {
+        const ok = await verifyPostPassword(post.id, password);
+        if (!ok) {
+          return {
+            success: false,
+            error: 'password',
+            message: '비밀번호가 일치하지 않습니다.',
+          };
         }
-      }
-      setModalOpen(false);
-      setAction(null);
-      setErrorMessage(undefined);
-    } else {
-      setErrorMessage('비밀번호가 일치하지 않습니다.');
-    }
+        if (action === 'edit') {
+          setEditPost(post);
+          router.push('/posts/write');
+          return { success: true };
+        } else if (action === 'delete') {
+          try {
+            await deletePost(post.id);
+            router.push('/posts');
+            return { success: true };
+          } catch (error) {
+            return {
+              success: false,
+              error: 'delete',
+              message: '삭제에 실패했습니다.',
+            };
+          }
+        }
+        return { success: false, error: 'unknown' };
+      },
+    });
   };
 
   return (
     <>
       <PostKebabMenu onRequestPasswordModal={handleMenuClick} />
-      <PostPasswordModal
-        open={modalOpen}
-        action={action}
-        onClose={() => setModalOpen(false)}
-        onConfirm={handleModalConfirm}
-        errorMessage={errorMessage}
-      />
     </>
   );
 };

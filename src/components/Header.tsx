@@ -3,61 +3,32 @@ import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@components/Button';
-import Input from '@components/Input';
 import LinkIcon from '@icons/LinkIcon';
 import CreateIcon from '@icons/CreateIcon';
-import Modal from '@components/Modal';
 import { usePostStore } from '@store/usePostStore';
-import { analyzeUrlWithOpenAI } from '@api/posts';
+import { useModalStore } from '@store/useModalStore';
 
 /**
  * 기본 헤더 컴포넌트
  */
-const Header: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [urlModalOpen, setUrlModalOpen] = useState(false);
+const Header = () => {
+  const { openModal } = useModalStore();
+  const [open, setOpen] = useState<boolean>(false);
+
   const pathname = usePathname();
   const isWritePage = pathname.startsWith('/posts/write');
-  const [url, setUrl] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { setEditPost, setAiAnalysisData } = usePostStore();
   const router = useRouter();
 
-  // URL 분석 및 게시글 작성 페이지로 이동
-  const handleUrlSubmit = async (e: React.FormEvent) => {
+  const handleUrlModalOpen = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!url.trim()) return;
-
-    setIsAnalyzing(true);
-    try {
-      const analysis = await analyzeUrlWithOpenAI(url);
-      if (analysis) {
-        // 분석 결과를 store에 저장
-        const postData = {
-          title: analysis.title,
-          content: analysis.summary,
-          tags: analysis.tags,
-          url: url,
-        };
-
+    openModal('urlInput', {
+      onSuccess: (postData: any) => {
         setAiAnalysisData(postData);
         router.push('/posts/write');
-      }
-    } catch (error) {
-      console.error('URL 분석 실패:', error);
-      // 에러가 발생해도 URL만 저장하고 게시글 작성 페이지로 이동
-      setAiAnalysisData({
-        title: '',
-        content: [],
-        tags: [],
-        url: url,
-      });
-      router.push('/posts/write');
-    } finally {
-      setIsAnalyzing(false);
-      setUrlModalOpen(false);
-      setOpen(false);
-    }
+      },
+    });
+    setOpen(false);
   };
 
   return (
@@ -72,10 +43,7 @@ const Header: React.FC = () => {
             <Link href="/posts/write" passHref>
               <button
                 className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left hover:bg-gray-100"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setUrlModalOpen(true);
-                }}
+                onClick={handleUrlModalOpen}
               >
                 <LinkIcon className="h-4 w-4 text-[var(--color-icon)]" />
                 URL로 간단 작성
@@ -96,61 +64,6 @@ const Header: React.FC = () => {
           </div>
         )}
       </div>
-      {/* Modal for URL 입력 */}
-      <Modal
-        open={urlModalOpen}
-        onClose={() => {
-          setUrlModalOpen(false);
-          setOpen(false);
-        }}
-        title="URL로 간단하게 작성하기"
-      >
-        <form onSubmit={handleUrlSubmit}>
-          <div className="mb-3 text-sm font-normal text-[var(--color-subtext)]">
-            입력하신 URL을 바탕으로{' '}
-            <b className="text-[var(--color-button)]">AI</b>가 제목과 본문을{' '}
-            <b className="text-[var(--color-button)]">자동 생성</b>합니다.
-            <br />
-            생성된 내용은 이후에 직접 수정하실 수 있습니다.
-          </div>
-          <Input
-            type="url"
-            className="w-full px-3 py-2 text-sm"
-            placeholder="URL을 입력하세요"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            required
-            disabled={isAnalyzing}
-          />
-          {isAnalyzing && (
-            <div className="mt-2 flex items-center gap-2 text-sm text-[var(--color-subtext)]">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-border)] border-t-[var(--color-button)]"></div>
-              AI로 내용을 분석하는 중...
-            </div>
-          )}
-          <div className="mt-6 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="px-4 py-1.5 text-sm"
-              onClick={() => {
-                setUrlModalOpen(false);
-                setOpen(false);
-              }}
-            >
-              취소
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              className="px-4 py-1.5 text-sm"
-              disabled={isAnalyzing}
-            >
-              {isAnalyzing ? '분석 중...' : '확인'}
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </header>
   );
 };

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '@components/Header';
+import ModalRenderer from '@components/ModalRenderer';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,10 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body className={`antialiased`}>
         <Header />
         {children}
+        <ModalRenderer />
       </body>
     </html>
   );

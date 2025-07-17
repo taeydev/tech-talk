@@ -7,6 +7,7 @@ import { Comment } from '@models/comment';
 import CommentItem from './CommentItem';
 import { postComment, getComments } from '@api/posts';
 import { useRouter } from 'next/navigation';
+import { usePasswordValidation } from '@hooks/usePasswordValidation';
 
 interface CommentSectionProps {
   comments: Comment[];
@@ -26,13 +27,23 @@ const CommentSection = ({
 }: CommentSectionProps) => {
   const router = useRouter();
   const [comment, setComment] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const [comments, setComments] = useState<Comment[]>(initialComments);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [hasMore, setHasMore] = useState(initialComments.length === PAGE_SIZE);
+  const [hasMore, setHasMore] = useState<boolean>(
+    initialComments.length === PAGE_SIZE
+  );
   const [recentComment, setRecentComment] = useState<Comment | null>(null);
+
+  const {
+    password,
+    setPassword,
+    setPasswordTouched,
+    isValidPassword,
+    passwordError,
+    passwordErrorMessage,
+    reset,
+  } = usePasswordValidation({ minLength: 4, maxLength: 4 });
 
   const handleRegister = async () => {
     setLoading(true);
@@ -53,10 +64,10 @@ const CommentSection = ({
         });
       }
       setRecentComment(newComment); // 새로 등록한 댓글을 별도 상태로 저장
-      const totalCount = comments.length + (recentComment ? 1 : 0) + 1; // 기존 댓글 + recentComment + 새로 등록한 댓글
+      const totalCount = comments.length + (recentComment ? 1 : 0) + 1;
       setHasMore(totalCount < commentCount);
       setComment('');
-      setPassword('');
+      reset();
       router.refresh();
     } catch (e) {
       setError('댓글 등록에 실패했습니다.');
@@ -90,19 +101,22 @@ const CommentSection = ({
           maxLength={200}
           rows={2}
         />
-        <div className="mt-1 flex items-center justify-end gap-1">
+        <div className="mt-1 flex h-14 items-baseline justify-end gap-1">
           <Input
             type="password"
-            placeholder="비밀번호"
+            placeholder="비밀번호(4자리)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-8 w-40 py-0.5 text-sm"
-            maxLength={6}
-            errorMessage={error || undefined}
+            onBlur={() => setPasswordTouched(true)}
+            className="h-8 w-45 py-0.5 text-sm"
+            maxLength={4}
+            errorMessage={
+              passwordError ? passwordErrorMessage : error || undefined
+            }
           />
           <Button
             type="button"
-            disabled={!comment.trim() || !password.trim() || loading}
+            disabled={!comment.trim() || !isValidPassword || loading}
             onClick={handleRegister}
             size="small"
             className="text-sm"

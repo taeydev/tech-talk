@@ -26,7 +26,8 @@
       "@models/*": ["src/models/*"],
       "@posts/*": ["src/app/posts/*"],
       "@store/*": ["src/store/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@hooks/*": ["src/hooks/*"]
     },
     "baseUrl": "."
   },
