@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
-from models import Post, Comment
+from models.post import Post
+from models.comment import Comment
 from database import SessionLocal
-from dto import CommentCreate
+from dto.comment import CommentCreate
 import bcrypt
 
 router = APIRouter()

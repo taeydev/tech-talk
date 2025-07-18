@@ -1,9 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, JSON, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Text, DateTime, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
-
-Base = declarative_base()
+from .comment import Comment
+from .base import Base
 
 class Post(Base):
     __tablename__ = "post"
@@ -24,12 +23,3 @@ class Post(Base):
         cascade="all, delete-orphan",
         order_by=lambda: Comment.created_at
     )
-
-class Comment(Base):
-    __tablename__ = "comment"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    post_id = Column(Integer, ForeignKey("post.id"), nullable=False)
-    content = Column(Text, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    password_hash = Column(String(255), nullable=False)

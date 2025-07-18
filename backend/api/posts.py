@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session, joinedload
-from models import Post, Comment
+from models.post import Post
+from models.comment import Comment
 from database import SessionLocal
-from dto import PostCreate, PostUpdate
+from dto.post import PostCreate, PostUpdate
 import bcrypt
 from sqlalchemy import func
 import os
@@ -211,7 +212,7 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
     db.refresh(new_post)
 
     # Confluence 블로그 포스트로 복제
-    post_to_confluence_blog(new_post.title, new_post.content, new_post.tags)
+    #post_to_confluence_blog(new_post.title, new_post.content, new_post.tags)
 
     return {
         "id": new_post.id,
