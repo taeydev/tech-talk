@@ -212,7 +212,7 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
     db.refresh(new_post)
 
     # Confluence 블로그 포스트로 복제
-    #post_to_confluence_blog(new_post.title, new_post.content, new_post.tags)
+    post_to_confluence_blog(new_post.title, new_post.content, new_post.tags)
 
     return {
         "id": new_post.id,
