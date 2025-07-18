@@ -56,15 +56,13 @@ const PostWritePage = () => {
         if (tags.length === 0) {
           setTags(aiData.tags);
         }
-        // AI 분석 데이터 사용 후 클리어
-        clearAiAnalysisData();
       }
     }
   }, [editPost, getAiAnalysisData, clearAiAnalysisData]);
 
   const handleAddTag = () => {
     const trimmedTag = tag.trim();
-    if (trimmedTag && !tags.includes(trimmedTag)) {
+    if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
       setTags([...tags, trimmedTag]);
       setTag('');
     }
@@ -193,26 +191,30 @@ const PostWritePage = () => {
           title,
           content,
           tags,
+          url: editPost.url || '',
           thumbnailUrl,
         });
         setTitle('');
         setContent('');
         setTags([]);
         setEditPost(null); // 이동 전 초기화
-        router.push(`/posts/${post.id}`);
+        router.replace(`/posts/${post.id}`);
       } else {
+        const aiData = getAiAnalysisData();
         const post = await createPost({
           title,
           content,
           tags,
           password: password || '',
           thumbnailUrl,
+          url: aiData?.url || '',
         });
         setTitle('');
         setContent('');
         setTags([]);
         setEditPost(null); // 이동 전 초기화
-        router.push(`/posts/${post.id}`);
+        clearAiAnalysisData();
+        router.replace(`/posts/${post.id}`);
       }
     } catch (error) {
       // TODO: toast 등으로 에러 메시지 처리 예정
@@ -280,7 +282,7 @@ const PostWritePage = () => {
                 <Input
                   type="text"
                   className="w-full text-sm"
-                  placeholder="태그를 입력하세요"
+                  placeholder="태그를 입력하세요(최대 5개)"
                   value={tag}
                   onChange={(e) => setTag(e.target.value)}
                   onKeyDown={handleTagKeyDown}
@@ -290,7 +292,7 @@ const PostWritePage = () => {
               <Button
                 variant="outline"
                 onClick={handleAddTag}
-                disabled={!tag.trim()}
+                disabled={!tag.trim() || tags.length >= 5}
               >
                 추가
               </Button>

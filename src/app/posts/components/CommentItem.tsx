@@ -110,7 +110,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-8 w-40 py-0.5 text-sm"
-              maxLength={6}
+              maxLength={4}
               errorMessage={error || undefined}
             />
             {mode === 'edit' ? (

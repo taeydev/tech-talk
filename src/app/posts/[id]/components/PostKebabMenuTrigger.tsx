@@ -33,12 +33,12 @@ const PostKebabMenuTrigger = ({ post }: { post: Post }) => {
         }
         if (action === 'edit') {
           setEditPost(post);
-          router.push('/posts/write');
+          router.replace('/posts/write'); // push → replace
           return { success: true };
         } else if (action === 'delete') {
           try {
             await deletePost(post.id);
-            router.push('/posts');
+            router.replace('/posts'); // push → replace
             return { success: true };
           } catch (error) {
             return {

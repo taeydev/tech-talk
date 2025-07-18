@@ -25,7 +25,7 @@ const Header = () => {
     openModal('urlInput', {
       onSuccess: (postData: any) => {
         setAiAnalysisData(postData);
-        router.push('/posts/write');
+        router.replace('/posts/write');
       },
     });
     setOpen(false);
@@ -33,7 +33,9 @@ const Header = () => {
 
   return (
     <header className="header-custom box-border flex h-[65px] w-full items-center justify-between px-10 py-6">
-      <h1 className="text-xl font-bold">TechTalk</h1>
+      <Link href="/posts" className="focus:outline-none">
+        <h1 className="text-xl font-bold">TechTalk</h1>
+      </Link>
       <div className="relative">
         {!isWritePage && (
           <Button onClick={() => setOpen((prev) => !prev)}>작성하기</Button>
